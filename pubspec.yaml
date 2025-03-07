@@ -1,7 +1,7 @@
-name: flutter_wataru
+name: flutter_encryption
 description: A sample command-line application with basic argument parsing.
 version: 0.0.1
-# repository: https://github.com/my_org/my_repo
+#repository: https://github.com/chanbinme/flutter-encryption
 
 environment:
   sdk: ^3.7.0

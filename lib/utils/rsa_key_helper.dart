@@ -6,11 +6,13 @@ import 'package:flutter/foundation.dart';
 import "package:pointycastle/export.dart";
 
 class RsaKeyHelper {
+  // RSA 키 쌍을 생성하는 비동기 메서드
   static Future<AsymmetricKeyPair<PublicKey, PrivateKey>>
   computeRSAKeyPair() async {
     return await compute(_getRsaKeyPair, _getSecureRandom());
   }
 
+  // 공개 키로 평문을 암호화하는 메서드
   static String encryptWithPublicKey(String plainText, RSAPublicKey publicKey) {
     final encrypter = OAEPEncoding(RSAEngine())
       ..init(true, PublicKeyParameter<RSAPublicKey>(publicKey));
@@ -22,6 +24,7 @@ class RsaKeyHelper {
     return base64Encode(encryptedBytes);
   }
 
+  // 개인 키로 암호문을 복호화하는 메서드
   static String decryptWithPrivateKey(
       String encryptedText, RSAPrivateKey privateKey) {
     final decrypter = OAEPEncoding(RSAEngine())
@@ -34,6 +37,7 @@ class RsaKeyHelper {
     return utf8.decode(decryptedBytes);
   }
 
+  // Private Key를 PEM 형식으로 인코딩하는 메서드
   static String encodePrivateKeyToPemPKCS1(RSAPrivateKey privateKey) {
     var topLevel = ASN1Sequence();
 
@@ -65,6 +69,7 @@ class RsaKeyHelper {
     return """-----BEGIN PRIVATE KEY-----\r\n$dataBase64\r\n-----END PRIVATE KEY-----""";
   }
 
+  // Public Key를 PEM 형식으로 인코딩하는 메서드
   static String encodePublicKeyToPemPKCS1(RSAPublicKey publicKey) {
     var topLevel = new ASN1Sequence();
 
@@ -75,6 +80,7 @@ class RsaKeyHelper {
     return """-----BEGIN PUBLIC KEY-----\r\n$dataBase64\r\n-----END PUBLIC KEY-----""";
   }
 
+  // PEM 형식의 문자열을 Public Key로 변환하는 메서드
   static RSAPublicKey parsePublicKeyFromPem(pemString) {
     List<int> publicKeyDER = _decodePEM(pemString);
     var asn1Parser = ASN1Parser(Uint8List.fromList(publicKeyDER));
@@ -100,6 +106,7 @@ class RsaKeyHelper {
     return rsaPublicKey;
   }
 
+  // PEM 형식의 문자열을 Private Key로 변환하는 메서드
   static RSAPrivateKey parsePrivateKeyFromPem(pemString) {
     List<int> privateKeyDER = _decodePEM(pemString);
     var asn1Parser = ASN1Parser(Uint8List.fromList(privateKeyDER));
@@ -133,6 +140,7 @@ class RsaKeyHelper {
     return rsaPrivateKey;
   }
 
+  // 텍스트를 Private Key로 서명하는 메서드
   static String sign(String plainText, RSAPrivateKey privateKey) {
     var signer = RSASigner(SHA256Digest(), "0609608648016503040201");
     signer.init(true, PrivateKeyParameter<RSAPrivateKey>(privateKey));
@@ -140,15 +148,18 @@ class RsaKeyHelper {
         signer.generateSignature(_createUint8ListFromString(plainText)).bytes);
   }
 
+  // 문자열을 Uint8List로 변환하는 메서드
   static Uint8List _createUint8ListFromString(String s) {
     var codec = const Utf8Codec(allowMalformed: true);
     return Uint8List.fromList(codec.encode(s));
   }
 
+  // PEM 형식의 문자열을 디코딩하는 헬퍼 메서드
   static List<int> _decodePEM(String pem) {
     return base64.decode(_removePemHeaderAndFooter(pem));
   }
 
+  // PEM 형식의 문자열에서 헤더와 푸터를 제거하는 메서드
   static String _removePemHeaderAndFooter(String pem) {
     var startsWith = [
       "-----BEGIN PUBLIC KEY-----",
@@ -180,6 +191,7 @@ class RsaKeyHelper {
     return pem;
   }
 
+  // RSA 키 쌍을 생성하는 헬퍼 메서드
   static AsymmetricKeyPair<PublicKey, PrivateKey> _getRsaKeyPair(
       SecureRandom secureRandom) {
     var rsapars = RSAKeyGeneratorParameters(BigInt.from(65537), 2048, 5);
@@ -189,6 +201,7 @@ class RsaKeyHelper {
     return keyGenerator.generateKeyPair();
   }
 
+  // SecureRandom 인스턴스를 생성하는  메서드
   static SecureRandom _getSecureRandom() {
     var secureRandom = FortunaRandom();
     var random = Random.secure();
